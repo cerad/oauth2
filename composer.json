@@ -1,0 +1,17 @@
+{
+  "name": "cerad/oauth2",
+  "license": "MIT",
+  "type": "project",
+  "description": "OAuth2 Server",
+  "autoload": { "psr-4": 
+  { 
+    "Cerad\\Module\\":    "src/" ,
+    "Cerad\\Component\\": "src/" 
+  }},
+  "prefer-stable":      true,
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=5.4.19",
+    "cerad/appx": "dev-master"
+  }
+}
