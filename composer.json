@@ -12,6 +12,8 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=5.4.19",
-    "cerad/appx": "dev-master"
+    "cerad/appx": "dev-master",
+    "guzzlehttp/guzzle": "~5.0@dev",
+    "guzzlehttp/oauth-subscriber": "0.1.*@dev"
   }
 }

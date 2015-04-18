@@ -2,3 +2,4 @@
 /nbproject/
 /vendor/
 /composer.lock
+/src/AppModule/AppParameters.php
