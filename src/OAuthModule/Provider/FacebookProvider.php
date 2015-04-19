@@ -4,27 +4,33 @@ namespace Cerad\Module\OAuthModule\Provider;
 
 class FacebookProvider extends AbstractProvider
 {
-    protected $scope = 'email';
+  protected $scope = 'email';
     
-    protected $userInfoUrl      = 'https://graph.facebook.com/me';
-    protected $accessTokenUrl   = 'https://graph.facebook.com/oauth/access_token';
-    protected $revokeTokenUrl   = 'https://graph.facebook.com/me/permissions';
-    protected $authorizationUrl = 'https://www.facebook.com/dialog/oauth';
+  protected $userInfoUrl      = 'https://graph.facebook.com/me';
+  protected $accessTokenUrl   = 'https://graph.facebook.com/oauth/access_token';
+  protected $revokeTokenUrl   = 'https://graph.facebook.com/me/permissions';
+  protected $authorizationUrl = 'https://www.facebook.com/dialog/oauth';
     
-    public function getUserInfo($accessToken)
-    {
-        $data = $this->getUserInfoData($accessToken);
-        
-        $userInfo = array(
-            'identifier'     => $data['id'],
-            'nickname'       => $data['username'],
-            'realname'       => $data['name'],
-            'email'          => $data['email'],
-            'profilepicture' => null,
-            'providername'   => $this->name,
-        );
-        return $userInfo;
-    }
+  public function getUserInfo($accessToken)
+  {
+    $data = $this->getUserInfoData($accessToken);
+
+    $email = $data['email'];
+    
+    $emailParts = explode('@',$email);
+    
+    $username = $emailParts[0];
+
+    $userInfo = array(
+      'identifier'     => $data['id'],
+      'nickname'       => $username,
+      'realname'       => $data['name'],
+      'email'          => $email,
+      'profilepicture' => null,
+      'providername'   => $this->name,
+    );
+    return $userInfo;
+  }
     /* Array ( 
      * [id] => 1530263836 
      * [email] => ahundiak@gmail.com 

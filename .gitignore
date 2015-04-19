@@ -3,3 +3,4 @@
 /vendor/
 /composer.lock
 /src/AppModule/AppParameters.php
+/src/AppModule/AppParametersZayso.php
