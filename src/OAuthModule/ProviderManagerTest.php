@@ -11,25 +11,25 @@ use Cerad\Component\Jwt\JwtCoder;
 
 use Cerad\Component\HttpMessage\Request;
 
-class ProvidersTest extends  \PHPUnit_Framework_TestCase
+class ProviderManagerTest extends  \PHPUnit_Framework_TestCase
 {  
   protected $secret      = 'secret';
   protected $jwtCoder    = null;
-  protected $redirectUri = '/oauth/callback';
+  protected $redirectUri = 'oauth/callback';
   
   protected $providersConfig = 
   [
     [
       'name'          => 'google',
       'class'         => 'Cerad\Module\OAuthModule\Provider\GoogleProvider',
-      'client_id'     => '%google_client_id%',
-      'client_secret' => '%google_client_secret%',
+      'clientId'     => '%google_client_id%',
+      'clientSecret' => '%google_client_secret%',
     ],            
     [
       'name'          => 'github',
       'class'         => 'Cerad\Module\OAuthModule\Provider\GithubProvider',
-      'client_id'     => '%github_client_id%',
-      'client_secret' => '%github_client_secret%',
+      'clientId'     => '%github_client_id%',
+      'clientSecret' => '%github_client_secret%',
     ],          
   ];
   public function setUp()
@@ -84,7 +84,7 @@ class ProvidersTest extends  \PHPUnit_Framework_TestCase
     $this->assertEquals('openid profile email',$params['scope']);
     $this->assertTrue  (isset($params['client_id']));
     
-    $this->assertEquals($schemeAuthority . $this->redirectUri, $params['redirect_uri']);
+    $this->assertEquals($request->getBaseHrefAbs() . $this->redirectUri, $params['redirect_uri']);
     
     $statePayload = $this->jwtCoder->decode($params['state']);
 

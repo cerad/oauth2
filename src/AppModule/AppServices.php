@@ -4,7 +4,7 @@ namespace Cerad\Module\AppModule;
 
 class AppServices
 {
-  public function __construct($container)
+  public function registerServices($container)
   {
     $container->set('app_controller',function()
     {
