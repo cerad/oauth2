@@ -22,8 +22,10 @@ class ProviderManager
   }
   public function getProviders() { return $this->providers; }
 
-  public function createProviderFromName($name,$state = null)
+  public function createProviderFromName($nameArg,$state = null)
   {
+    $name = strtolower($nameArg);
+    
     if (!isset($this->providers[$name])) 
     {
       throw new \InvalidArgumentException(sprintf("Cerad Oauth Provider not found: %s",$name));
@@ -38,16 +40,12 @@ class ProviderManager
       $state = $this->jwtCoder->encode(['name' => $name,'random' => uniqid()]);
     }
     // Create it
-    $info = $this->providers[$name];
-    $className = $info['class'];
+    $params = $this->providers[$name];
+    
+    $className = $params['class'];
         
-    $instance = new $className(
-      $info['name'],
-      $info['client_id'],
-      $info['client_secret'],
-      $state,
-      $this->redirectUri
-    );
+    $instance = new $className($params,$this->redirectUri,$state);
+    
     $this->providers[$name]['instance'] = $instance;
     
     return $instance;

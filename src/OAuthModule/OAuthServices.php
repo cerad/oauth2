@@ -13,47 +13,6 @@ class OAuthServices
         return new \Cerad\Component\Jwt\JwtCoder($c->get('secret'));
       });
     }
-    $container->set('oauth_providers_config',
-    [
-      [
-        'name'          => 'google',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\GoogleProvider',
-        'client_id'     => $container->get('oauth_google_client_id'),
-        'client_secret' => $container->get('oauth_google_client_secret'),
-      ],            
-      [
-        'name'          => 'github',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\GithubProvider',
-        'client_id'     => $container->get('oauth_github_client_id'),
-        'client_secret' => $container->get('oauth_github_client_secret'),
-      ],            
-      [
-        'name'          => 'facebook',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\FacebookProvider',
-        'client_id'     => $container->get('oauth_facebook_client_id'),
-        'client_secret' => $container->get('oauth_facebook_client_secret'),
-      ],            
-      [
-        'name'          => 'linkedin',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\LinkedinProvider',
-        'client_id'     => $container->get('oauth_linkedin_client_id'),
-        'client_secret' => $container->get('oauth_linkedin_client_secret'),
-      ],            
-      [
-        'name'          => 'twitter',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\TwitterProvider',
-        'client_id'     => $container->get('oauth_twitter_client_id'),
-        'client_secret' => $container->get('oauth_twitter_client_secret'),
-      ],        
-      [
-        'name'          => 'liveconnect',
-        'class'         => 'Cerad\Module\OAuthModule\Provider\LiveconnectProvider',
-        'client_id'     => $container->get('oauth_liveconnect_client_id'),
-        'client_secret' => $container->get('oauth_liveconnect_client_secret'),
-      ],        
-    ]);
-    $container->set('oauth_callback_uri','/oauth/callback');
-    
     $container->set('oauth_provider_manager',function($container)
     {
       $jwtCoder        = $container->get('jwt_coder');

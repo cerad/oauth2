@@ -17,19 +17,25 @@ class AbstractProvider
     protected $clientSecret;
     
     protected $scope;
-    
-    protected $userProfileUrl;
+    protected $userInfoUrl;
     protected $accessTokenUrl;
     protected $revokeTokenUrl;
     protected $authorizationUrl;
     
-  public function __construct($name,$clientId,$clientSecret,$state,$redirectUri)
+  public function __construct($params,$redirectUri,$state)
   { 
-    $this->name         = $name;
-    $this->state        = $state;
-    $this->clientId     = $clientId;
-    $this->clientSecret = $clientSecret;
-    $this->redirectUri  = $redirectUri;
+    $this->name         = $params['name'];
+    $this->clientId     = $params['clientId'];
+    $this->clientSecret = $params['clientSecret'];
+    
+    if (isset($params['scope'           ])) $this->scope            = $params['scope'];
+    if (isset($params['userInfoUrl'     ])) $this->userInfoUrl      = $params['userInfoUrl'];
+    if (isset($params['accessTokenUrl'  ])) $this->accessTokenUrl   = $params['accessTokenUrl'];
+    if (isset($params['revertTokenUrl'  ])) $this->revertTokenUrl   = $params['revertTokenUrl'];
+    if (isset($params['authorizationUrl'])) $this->authorizationUrl = $params['authorizationUrl'];
+    
+    $this->state       = $state;
+    $this->redirectUri = $redirectUri;
         
     $this->client = new Client();
     $this->client->setDefaultOption('verify', false);
@@ -84,9 +90,9 @@ class AbstractProvider
     return $this->getResponseData($guzzleResponse);
   }    
   // Return array from either json or name-value
-  protected function getResponseData($response)
+  protected function getResponseData($guzzleResponse)
   {
-    $content = (string)$response->getBody();
+    $content = (string)$guzzleResponse->getBody();
         
     if (!$content) return [];
     
@@ -100,16 +106,6 @@ class AbstractProvider
   protected function getRedirectUri(CeradRequest $request)
   {
     // http://local.oauth.zayso.org/oauth/callback
-      
-    // TODO: Embed in CeradRequest
-    $uri = $request->getUri();
-    $scheme    = $uri->getScheme();
-    $authority = $uri->getAuthority();
-      
-    $schemeAuthority = $scheme ? $scheme . '://' . $authority : $authority;
-      
-    // Need to add any /web prefix
-      
-    return $schemeAuthority . $this->redirectUri;
+    return $request->getBaseHrefAbs() . $this->redirectUri;
   }
 }

@@ -25,6 +25,7 @@ class OAuthController
     $userInfo = $provider->getUserInfo($accessTokenData);
     
     $oauthToken = $this->jwtCoder->encode($userInfo);
+    $baseHref   = $request->getBaseHref();
     
     ob_start();
     include dirname(__FILE__) . '/OAuthControllerCallback.html.php';

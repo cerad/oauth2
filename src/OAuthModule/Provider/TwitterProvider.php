@@ -7,8 +7,6 @@ use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
 use Cerad\Component\HttpMessage\Request as CeradRequest;
 
-use Cerad\Bundle\UserBundle\OAuth\ProviderManager;
-
 /* ================================================================
  * Twitter basically does not support user login via oauth2 - very sad
  * Nor does it provide email even with oauth1
