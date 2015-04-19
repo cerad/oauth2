@@ -1,0 +1,10 @@
+DirectoryIndex disabled
+
+RewriteEngine On
+
+# Serve existing files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule .? - [L]
+
+RewriteRule .? app.php [L]
+

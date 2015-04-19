@@ -27,6 +27,30 @@ class OAuthServices
         'client_id'     => $container->get('oauth_github_client_id'),
         'client_secret' => $container->get('oauth_github_client_secret'),
       ],            
+      [
+        'name'          => 'facebook',
+        'class'         => 'Cerad\Module\OAuthModule\Provider\FacebookProvider',
+        'client_id'     => $container->get('oauth_facebook_client_id'),
+        'client_secret' => $container->get('oauth_facebook_client_secret'),
+      ],            
+      [
+        'name'          => 'linkedin',
+        'class'         => 'Cerad\Module\OAuthModule\Provider\LinkedinProvider',
+        'client_id'     => $container->get('oauth_linkedin_client_id'),
+        'client_secret' => $container->get('oauth_linkedin_client_secret'),
+      ],            
+      [
+        'name'          => 'twitter',
+        'class'         => 'Cerad\Module\OAuthModule\Provider\TwitterProvider',
+        'client_id'     => $container->get('oauth_twitter_client_id'),
+        'client_secret' => $container->get('oauth_twitter_client_secret'),
+      ],        
+      [
+        'name'          => 'liveconnect',
+        'class'         => 'Cerad\Module\OAuthModule\Provider\LiveconnectProvider',
+        'client_id'     => $container->get('oauth_liveconnect_client_id'),
+        'client_secret' => $container->get('oauth_liveconnect_client_secret'),
+      ],        
     ]);
     $container->set('oauth_callback_uri','/oauth/callback');
     
@@ -45,21 +69,58 @@ class OAuthServices
       
       return new \Cerad\Module\OAuthModule\OAuthController($providerManager,$jwtCoder);
     });
-    $appAction = function($request) use ($container)
+    /* ======================================================
+     * /oauth/tokens
+     */
+    $tokensRouteAction = function($request) use ($container)
     {
-      $controller = $container->get('app_controller');
-      return $controller->indexAction($request);
+      $controller = $container->get('oauth_controller');
+      return $controller->tokensAction($request,$request->getAttribute('providerName'));
     };
-    $appRoute = function($path) use($appAction)
+    $tokensRouteMatch = function($path) use($tokensRouteAction)
     {  
-      $params = [ '_action' =>  $appAction];
-      if ($path === '/') return $params;
-    };
-    $appRouteService = function() use ($appRoute)
-    {
-      return $appRoute;
-    };
-    $container->set('route_app',$appRouteService,'routes');
+      $params = 
+      [ 
+        'providerName' => null,
+        '_action' =>  $tokensRouteAction
+      ];
+      
+      $matches = [];
+        
+      if (!preg_match('#^/oauth/tokens/(\w+$)#', $path, $matches)) return false;
 
+      $params['providerName'] = $matches[1];
+      
+      return $params;
+    };
+    $tokensRouteService = function() use ($tokensRouteMatch)
+    {
+      return $tokensRouteMatch;
+    };
+    $container->set('oauth_route_tokens',$tokensRouteService,'routes');
+    
+    /* ======================================================
+     * /oauth/callback
+     */
+    $callbackRouteAction = function($request) use ($container)
+    {
+      $controller = $container->get('oauth_controller');
+      return $controller->callbackAction($request);
+    };
+    $callbackRouteMatch = function($path) use($callbackRouteAction)
+    {  
+      $params = 
+      [ 
+        '_action' =>  $callbackRouteAction
+      ];
+      if ($path === '/oauth/callback') return $params;
+      
+      return false;
+    };
+    $callbackRouteService = function() use ($callbackRouteMatch)
+    {
+      return $callbackRouteMatch;
+    };
+    $container->set('oauth_route_callback',$callbackRouteService,'routes');
   }
 }

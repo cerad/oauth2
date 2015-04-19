@@ -1,90 +1,99 @@
 <?php
 
-namespace Cerad\Bundle\UserBundle\OAuth\Provider;
+namespace Cerad\Module\OAuthModule\Provider;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
+use Cerad\Component\HttpMessage\Request as CeradRequest;
 
 use Cerad\Bundle\UserBundle\OAuth\ProviderManager;
 
 /* ================================================================
  * Twitter basically does not support user login via oauth2 - very sad
  * Nor does it provide email even with oauth1
+ * 
+ * It also requires maintaining some state on the server which means sessions
  */
 class TwitterProvider extends AbstractProvider
 {   
-    protected $userInfoUrl      = 'https://api.twitter.com/1.1/account/verify_credentials.json?include_entities=false&skip_status=true';
-    protected $accessTokenUrl   = 'https://api.twitter.com/oauth/access_token';
-    protected $requestTokenUrl  = 'https://api.twitter.com/oauth/request_token';
-    protected $authorizationUrl = 'https://api.twitter.com/oauth/authenticate';
+  protected $userInfoUrl      = 'https://api.twitter.com/1.1/account/verify_credentials.json?include_entities=false&skip_status=true';
+  protected $accessTokenUrl   = 'https://api.twitter.com/oauth/access_token';
+  protected $requestTokenUrl  = 'https://api.twitter.com/oauth/request_token';
+  protected $authorizationUrl = 'https://api.twitter.com/oauth/authenticate';
     
-    public function getRequestToken(SymfonyRequest $symfonyRequest)
-    {
-        $requestTokenClient = new Client();
-
-        $oauth = new Oauth1([
-            'consumer_key'    => $this->clientId,
-            'consumer_secret' => $this->clientSecret,
-            'callback'        => $this->getRedirectUri($symfonyRequest),
-        ]);
-
-        $requestTokenClient->getEmitter()->attach($oauth);
-
-        $requestTokenResponse = $requestTokenClient->post($this->requestTokenUrl,[
-            'auth'   => 'oauth',
-            'debug'  => false,
-            'verify' => false,
-        ]);
-        // oauth_token => 7Q..., oauth_token_secret => f2..., oauth_callback_confirmed => true 
-        $requestTokenResponseData = $this->getResponseData($requestTokenResponse);
-        
-        return $requestTokenResponseData;
-    }
-    public function getAuthorizationUrl(SymfonyRequest $symfonyRequest)
-    {
-        $requestToken = $this->getRequestToken($symfonyRequest);
-                
-        $storageData = [
-            'requestToken'       => $requestToken['oauth_token'],
-            'requestTokenSecret' => $requestToken['oauth_token_secret'],
-        ];
-        $storage = $this->providerManager->getStorage();
-        $storage->set(ProviderManager::STORAGE_KEY_REQUEST_TOKEN,$storageData);
+  // Called by getAuthorizationUrl
+  protected function getRequestToken(CeradRequest $ceradRequest)
+  {
+    session_name('oauth_session');
+    session_start();
       
-        $authorizationClient = new Client();
-        $authorizationRequest = $authorizationClient->createRequest('GET',$this->authorizationUrl,[
-            'query' => ['oauth_token' => $requestToken['oauth_token']]
-        ]);
-        return $authorizationRequest->getUrl();
-    }
-    public function getAccessToken(SymfonyRequest $symfonyRequest)
-    {
-        // Need the request token
-        $storage = $this->providerManager->getStorage();
-        $requestToken = $storage->get(ProviderManager::STORAGE_KEY_REQUEST_TOKEN);
-        
-        $accessTokenClient = new Client();
-        
-        $oauth = new Oauth1([
-            'consumer_key'    => $this->clientId,
-            'consumer_secret' => $this->clientSecret,
-            'token'           => $requestToken['requestToken'],
-            'token_secret'    => $requestToken['requestTokenSecret'],
-            'verifier'        => $symfonyRequest->get('oauth_verifier'),
-        ]);
-        $accessTokenClient->getEmitter()->attach($oauth);
+    $requestTokenClient = new Client();
 
-        $accessTokenResponse = $accessTokenClient->post($this->accessTokenUrl,[
-            'auth'   => 'oauth',
-            'debug'  => false,
-            'verify' => false,
-        ]);
-        $accessToken = $this->getResponseData($accessTokenResponse);
+    $oauth = new Oauth1([
+      'consumer_key'    => $this->clientId,
+      'consumer_secret' => $this->clientSecret,
+      'callback'        => $this->getRedirectUri($ceradRequest),
+    ]);
+    
+    $requestTokenClient->getEmitter()->attach($oauth);
+
+    $requestTokenResponse = $requestTokenClient->post($this->requestTokenUrl,[
+      'auth'   => 'oauth',
+      'debug'  => false,
+      'verify' => false,
+    ]);
+    // oauth_token => 7Q..., oauth_token_secret => f2..., oauth_callback_confirmed => true 
+    $requestTokenResponseData = $this->getResponseData($requestTokenResponse);
         
-        return $accessToken;
-    }
+    return $requestTokenResponseData;
+  }
+  public function getAuthorizationUrl(CeradRequest $ceradRequest)
+  {
+    $requestToken = $this->getRequestToken($ceradRequest);
+                
+    $_SESSION['oauth_token']        = $requestToken['oauth_token'];
+    $_SESSION['oauth_token_secret'] = $requestToken['oauth_token_secret'];
+      
+    $authorizationClient = new Client();
+    $authorizationRequest = $authorizationClient->createRequest('GET',$this->authorizationUrl,
+    [
+      'query' => ['oauth_token' => $requestToken['oauth_token']]
+    ]);
+    return $authorizationRequest->getUrl();
+  }
+  public function getAccessToken(CeradRequest $ceradRequest)
+  {
+    session_name('oauth_session');
+    session_start();
+    
+    $requestToken       = $_SESSION['oauth_token'];
+    $requestTokenSecret = $_SESSION['oauth_token_secret'];
+    
+    session_destroy();
+    
+    $accessTokenClient = new Client();
+        
+    $oauth = new Oauth1(
+    [
+      'consumer_key'    => $this->clientId,
+      'consumer_secret' => $this->clientSecret,
+      'token'           => $requestToken,
+      'token_secret'    => $requestTokenSecret,
+      'verifier'        => $ceradRequest->getQueryParams()['oauth_verifier'],
+    ]);
+    $accessTokenClient->getEmitter()->attach($oauth);
+
+    $accessTokenResponse = $accessTokenClient->post($this->accessTokenUrl,
+    [
+      'auth'   => 'oauth',
+      'debug'  => false,
+      'verify' => false,
+    ]);
+    $accessToken = $this->getResponseData($accessTokenResponse);
+        
+    return $accessToken;
+  }
     public function getUserInfo($accessToken)
     {
         $userInfoClient = new Client();

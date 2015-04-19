@@ -1,6 +1,6 @@
 <?php
 
-namespace Cerad\Bundle\UserBundle\OAuth\Provider;
+namespace Cerad\Module\OAuthModule\Provider;
 
 class GithubProvider extends AbstractProvider
 {

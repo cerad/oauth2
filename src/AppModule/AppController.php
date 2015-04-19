@@ -2,13 +2,21 @@
 
 namespace Cerad\Module\AppModule;
 
+use Cerad\Component\HttpMessage\Request;
 use Cerad\Component\HttpMessage\Response;
 
 class AppController
 {
-  public function indexAction($request)
+  public function indexAction(Request $request)
   {
-    $response = new Response('OAuth2 Index');
+    ob_start();
+    
+    include \dirname(__FILE__) . '/AppControllerIndex.html.php';
+    
+    $contents = ob_get_clean();
+    
+    $response = new Response($contents);
+    
     return $response;
   }
 }

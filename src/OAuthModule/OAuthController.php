@@ -3,9 +3,8 @@
 namespace Cerad\Module\OAuthModule;
 
 use Cerad\Component\HttpMessage\Request;
-
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse as ResponseRedirect;
+use Cerad\Component\HttpMessage\Response;
+use Cerad\Component\HttpMessage\ResponseRedirect;
 
 class OAuthController
 {
@@ -27,9 +26,11 @@ class OAuthController
     
     $oauthToken = $this->jwtCoder->encode($userInfo);
     
-    $html = include dirname(__FILE__) . '/oauth-callback.html.php';
+    ob_start();
+    include dirname(__FILE__) . '/OAuthControllerCallback.html.php';
+    $contents = ob_get_clean();
     
-    return new Response($html);
+    return new Response($contents);
   }
   // /oauth/tokens?provider=providerName
   public function tokensAction(Request $request, $providerName)
@@ -37,7 +38,7 @@ class OAuthController
     $provider = $this->providerManager->createProviderFromName($providerName);
     
     $authorizationUrl = $provider->getAuthorizationUrl($request);
-    
+  //die($authorizationUrl);
     return new ResponseRedirect($authorizationUrl);
   }
 }

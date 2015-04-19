@@ -10,19 +10,20 @@ class AppServices
     {
       return new \Cerad\Module\AppModule\AppController();
     });
-    $appAction = function($request) use ($container)
+    $appRouteAction = function($request) use ($container)
     {
       $controller = $container->get('app_controller');
       return $controller->indexAction($request);
     };
-    $appRoute = function($path) use($appAction)
+    $appRouteMatch = function($path) use($appRouteAction)
     {  
-      $params = [ '_action' =>  $appAction];
+      $params = [ '_action' =>  $appRouteAction];
       if ($path === '/') return $params;
+      return false;
     };
-    $appRouteService = function() use ($appRoute)
+    $appRouteService = function() use ($appRouteMatch)
     {
-      return $appRoute;
+      return $appRouteMatch;
     };
     $container->set('route_app',$appRouteService,'routes');
 

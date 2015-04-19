@@ -56,11 +56,18 @@ class ProviderManager
   public function createProviderFromRequest(Request $request)
   {
     // OAuth1 will not have state, how to handle twitter?
-    $state = $request->getQueryParams()['state'];
-        
-    // Toss exception if tampered with
-    $info = $this->jwtCoder->decode($state);
-        
-    return $this->createProviderFromName($info['name'],$state);
+    $queryParams = $request->getQueryParams();
+    if (isset($queryParams['state']))
+    {
+      $state = $queryParams['state'];
+      $info = $this->jwtCoder->decode($state);
+      $providerName = $info['name'];
+    }
+    else 
+    {
+      $state = 'twitter_fake_state';
+      $providerName = 'twitter';
+    }   
+    return $this->createProviderFromName($providerName,$state);
   }
 }

@@ -104,7 +104,7 @@ class ProvidersTest extends  \PHPUnit_Framework_TestCase
     
     $response = $controller->tokensAction($request,'google');
     
-    $location = $response->headers->get('Location');
+    $location = $response->getHeaderLine('Location');
     
     $this->assertTrue(strpos($location,'https://accounts.google.com') !== false);
     
@@ -124,7 +124,7 @@ class ProvidersTest extends  \PHPUnit_Framework_TestCase
     
     $response = $controller->tokensAction($request,'google');
     
-    $location = $response->headers->get('Location');
+    $location = $response->getHeaderLine('Location');
     
     $this->assertTrue(strpos($location,'https://accounts.google.com') !== false);
     

@@ -1,8 +1,6 @@
 <?php
 
-namespace Cerad\Bundle\UserBundle\OAuth\Provider;
-
-use GuzzleHttp\Client;
+namespace Cerad\Module\OAuthModule\Provider;
 
 /*
  * Array ( 
