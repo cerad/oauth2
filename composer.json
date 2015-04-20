@@ -1,8 +1,10 @@
 {
   "name": "cerad/oauth2",
-  "license": "MIT",
   "type": "project",
-  "description": "OAuth2 Server",
+  "description": "Cerad OAuth2 Component Server",
+  "homepage": "http://zayso.org",
+  "authors": [{ "name": "Art Hundiak", "email": "ahundiak@gmail.com" }],
+  "license": "MIT",
   "autoload": { "psr-4": 
   { 
     "Cerad\\Module\\":    "src/" ,
@@ -11,9 +13,9 @@
   "prefer-stable":      true,
   "minimum-stability": "dev",
   "require": {
-    "php": ">=5.4.19",
+    "php": ">=5.5.5",
     "cerad/appx": "dev-master",
-    "guzzlehttp/guzzle": "~5.0@dev",
-    "guzzlehttp/oauth-subscriber": "0.1.*@dev"
+    "guzzlehttp/guzzle":           "~5.2",
+    "guzzlehttp/oauth-subscriber": "~0.2"
   }
 }

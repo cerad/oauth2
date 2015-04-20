@@ -13,7 +13,8 @@ class App extends KernelApp
   { 
     new AppParameters($container);
     
-    new KernelServices($container);
+    $kernelServices = new KernelServices();
+    $kernelServices->registerServices($container);
     
     new OAuthServices($container);
     
