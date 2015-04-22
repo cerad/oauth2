@@ -23,7 +23,18 @@
   <a href="oauth/tokens/twitter" >Twitter</a>
   <a href="oauth/tokens/liveconnect">Live Connect</a>
   <script>
-    window.opener.oauthCallback('<?php echo $oauthToken; ?>');
+  (function() 
+  {
+    var message = { name: 'oauth', token: '<?php echo $oauthToken; ?>' };
+    
+    window.opener.postMessage(message,'*');
+    
+    // This probably won't do anything but keep for now
+    window.onunload(function()
+    {
+      window.opener.postMessage({ name: 'closed' },'*');
+    });
+  })();
   </script>
 </body>
 </html>
